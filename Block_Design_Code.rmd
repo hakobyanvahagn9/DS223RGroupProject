@@ -1,0 +1,67 @@
+---
+title: "Block Deasign"
+author: "R Group"
+date: "11/27/2021"
+output: pdf_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("support.CEs")
+library(mltools)
+library(data.table)
+
+```
+
+
+
+```{r}
+rd = rotation.design( attribute.names = list(Brand = c("Sony", "Canon", "Nikon"),
+                         `Sensor Size` = c("Full-Frame", "APS-H", "APS-C"),
+                         `Camera Type` = c("DSLR", "Mirrorless"),
+                         `Resolution` = c("64 megapixel", "24 megapixel", "12 megapixel"),
+                         `Price` = c("$3,000", "$2,000", "$1,000")),
+                          nalternatives = 2, nblocks = 1, seed = 123)
+
+ 
+```
+
+```{r}
+data <- data.frame(rbind(rd$alternatives$alt.1,rd$alternatives$alt.2))
+data
+
+
+```
+
+```{r}
+
+newdata <- one_hot(as.data.table(data))
+newdata
+
+#write.table(newdata, "camera.csv", row.names=FALSE, sep=",")
+
+
+
+```
+
+```{r}
+rd$alternatives$alt.1
+
+```
+
+
+
+```{r}
+rd$alternatives$alt.2
+```
+
+
+
+
+
+
+
+
+
+
