@@ -1,0 +1,78 @@
+---
+title: "OLS"
+author: "David Martirosyan"
+date: "11/27/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(conjoint)
+library(agricolae)
+library(ibd)
+library(crossdes)
+library(AlgDesign)
+library(survival)
+library(support.CEs)
+library(ggplot2)
+library(stargazer)
+library(caret)
+library(dplyr)
+
+```
+
+```{r}
+
+data = read.csv("camera.csv")
+
+dummy <- dummyVars(" ~ .", data=data)
+newdata <- data.frame(predict(dummy, newdata = data)) 
+```
+
+
+```{r}
+
+datalist = list()
+
+for (i in 1:100) {
+    dat <- newdata[sample(nrow(newdata), 36), ]
+    dat$id <- i  
+    datalist[[i]] <- dat 
+}
+
+
+big_data <- dplyr::bind_rows(datalist)
+
+big_data$RES <- floor(runif(3600, min=0, max=2))
+
+
+for (i in 1:3599){
+  for (j in (i+1):3600){
+    
+    if ((big_data$id[i] == big_data$id[j]) && (big_data$QES[i] == big_data$QES[j]) && (big_data$RES[i] == big_data$RES[j])){
+      
+      if (big_data$RES[i] == 1){
+        big_data$RES[i] = 0
+      }
+      else{
+        big_data$RES[i] = 1
+      }
+    }
+  }
+}
+
+colnames(big_data)
+```
+
+```{r}
+
+model = RES ~ BrandCanon + BrandNikon + BrandSony + Sensor.SizeAPS.C..23.6x15.6mm + Sensor.SizeAPS.H..27.9x18.6mm + Sensor.SizeFull.Frame..36x24mm + 
+  Camera.TypeDSLR + Camera.TypeMirrorless + Resolution12.megapixel + Resolution24.megapixel + Resolution64.megapixel + Price.1.000 + Price.2.000 + Price.3.000
+
+output = clogit(model, data = big_data)
+output
+```
